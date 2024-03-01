@@ -1,4 +1,4 @@
-# Asignacion de tareas
+# Generador de programas
 
 Una herramienta con el fin de automatizar la generacion de programas de Audio
 y Video para el salon del Reino.
@@ -21,3 +21,5 @@ pero SIN NINGUNA GARANTÍA; ni siquiera la garantía implícita de
 COMERCIALIZACIÓN o IDONEIDAD PARA UN FIN PARTICULAR. Consulte la
 Licencia Pública General de GNU para más detalles.
 ```
+
+Ver `public/LICENCE.txt`

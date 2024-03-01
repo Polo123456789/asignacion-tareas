@@ -13,6 +13,7 @@ const weeks = useLocalStorage<number>('weeks', 8);
 const startDate = ref(new Date());
 const chronogram = useLocalStorage<Week[]>('chronogram', []);
 const weeksTilAssigmentRepeat = useLocalStorage<number>('weeksTilAssigmentRepeat', 3);
+const notesOnPrint = useLocalStorage<string>('notesOnPrint', 'En caso de no poder cumplir con su asignacion porfavor notificar al encargado para que se pueda reasignar');
 
 const inputTask = ref<Task>('');
 
@@ -77,7 +78,6 @@ const runChronogramGenerator  = () => {
 }
 
 const printChronogram = () => {
-    alert('Recuerde colocar la hoja en orientación horizontal antes de imprimir.');
     window.print();
 }
 
@@ -105,36 +105,45 @@ const weekDown = (index: number) => {
     chronogram.value[index] = temp;
 }
 
+// Export as a file
 const exportConfig = () => {
-    const config = {
+    const data = {
         tasks: tasks.value,
         people: people.value,
-        weeks: weeks.value,
-        weeksTilAssigmentRepeat: weeksTilAssigmentRepeat.value
+        weeksTilAssigmentRepeat: weeksTilAssigmentRepeat.value,
+        notesOnPrint: notesOnPrint.value
     };
 
-    navigator.clipboard.writeText(JSON.stringify(config, null, 2)).then(() => {
-        alert('Configuración copiada al portapapeles');
-    }).catch(() => {
-        alert('No se pudo copiar la configuración al portapapeles');
-    });
+    const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'config.json';
+    a.click();
+    URL.revokeObjectURL(url);
 }
 
 const importConfig = () => {
-    const config = prompt('Pega el JSON aquí');
-    if (!config) {
-        return;
-    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) {
+            return;
+        }
 
-    try {
-        const parsed = JSON.parse(config);
-        tasks.value = parsed.tasks;
-        people.value = parsed.people;
-        weeks.value = parsed.weeks;
-        weeksTilAssigmentRepeat.value = parsed.weeksTilAssigmentRepeat;
-    } catch (e) {
-        alert('No se pudo importar el JSON');
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = JSON.parse(e.target?.result as string);
+            tasks.value = data.tasks;
+            people.value = data.people;
+            weeksTilAssigmentRepeat.value = data.weeksTilAssigmentRepeat;
+            notesOnPrint.value = data.notesOnPrint;
+        }
+        reader.readAsText(file);
     }
+    input.click();
 }
 
 </script>
@@ -202,6 +211,10 @@ const importConfig = () => {
                     <input type="number" class="form-control" id="weeksTilAssigmentRepeat" v-model="weeksTilAssigmentRepeat">
                 </div>
             </div>
+            <div class="mb-3">
+                <h4>Notas &nbsp;<span class="badge bg-secondary fs-5">Opcional</span></h4>
+                <textarea class="form-control" v-model="notesOnPrint" rows="3"></textarea>
+            </div>
             <div class="d-flex justify-content-right gap-3" >
                 <template v-if="tasks.length != 0 && people.length != 0">
                     <button class="btn btn-dark" @click="runChronogramGenerator">
@@ -251,15 +264,13 @@ const importConfig = () => {
                 </tr>
             </tbody>
         </table>
-        <p class="just-print">
-            <b>Nota:</b> Los hermanos asignados en seccion de Zoom seran los
-            encargados de abrir las sesiones de predicacion entre semana y las
-            fechas indicadas. Acomodador zoom sera el encargado de enviar la
-            asistencia a JOSUE ORELLANA
+        <p class="just-print" v-if="notesOnPrint">
+            <b>Nota:</b>&nbsp;
+            <pre>{{ notesOnPrint }}</pre>
         </p>
     </div>
     <div class="dont-print">
-            <footer class="text-center mx-auto" style="max-width: 40rem;">
+            <footer class="text-center mx-auto mb-3" style="max-width: 40rem;">
                 <details>
                     <summary>
                        Copyright (C) 2023 Pablo Sanchez
@@ -276,6 +287,9 @@ const importConfig = () => {
                         COMERCIALIZACIÓN o IDONEIDAD PARA UN FIN PARTICULAR. Consulte la
                         Licencia Pública General de GNU para más detalles.
                     </p>
+                    <a href="/LICENCE.txt">Ver Licencia</a>
+                    <br/>
+                    <a href="https://github.com/Polo123456789/generador-programas-av">Github</a>
                 </details>
             </footer>
         </div>
