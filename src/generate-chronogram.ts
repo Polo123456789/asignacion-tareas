@@ -43,9 +43,25 @@ export function generateChronogram(originalPeople: Individual[],
 
     weeks.push(possibleWeeks[Math.floor(Math.random() * possibleWeeks.length)]);
 
+    // Loop back infinetly
+    function makePossibleWeeksIterator() {
+        let i = 0;
+        return {
+            next: () => {
+                if (i === possibleWeeks.length) {
+                    i = 0;
+                }
+                return possibleWeeks[i++];
+            }
+        }
+    }
+
+    const possibleWeeksIterator = makePossibleWeeksIterator();
+    let loopCount = 0;
+
     for (let i = 0; i < noWeeks - 1; i++) {
-        for (let j = 0; j < possibleWeeks.length; j++) {
-            const week = possibleWeeks[j];
+        while (loopCount++ < possibleWeeks.length) {
+            const week = possibleWeeksIterator.next();
             const lastWeeks = weeks.slice(-weeksTilAssigmentRepeat);
     
             const isGoodWeek = lastWeeks.every(lastWeek => {
@@ -59,6 +75,11 @@ export function generateChronogram(originalPeople: Individual[],
                 break;
             }
         }
+        if (loopCount >= possibleWeeks.length) {
+            // We cant generate more weeks
+            break;
+        }
+        loopCount = 0;
     }
 
     return weeks;
