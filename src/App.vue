@@ -298,7 +298,7 @@ const noOfPeopleThatCanDo = computed(() => {
                         COMERCIALIZACIÓN o IDONEIDAD PARA UN FIN PARTICULAR. Consulte la
                         Licencia Pública General de GNU para más detalles.
                     </p>
-                    <a href="/LICENCE.txt">Ver Licencia</a>
+                    <a href="/generador-programas-av/LICENCE.txt">Ver Licencia</a>
                     <br/>
                     <a href="https://github.com/Polo123456789/generador-programas-av">Github</a>
                 </details>
