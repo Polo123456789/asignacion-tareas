@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {ref, toRaw} from 'vue';
+import {ref, toRaw, computed} from 'vue';
 
 import {generateChronogram} from './generate-chronogram';
 import {Week, Individual, Task} from './types';
@@ -146,6 +146,15 @@ const importConfig = () => {
     input.click();
 }
 
+const noOfPeopleThatCanDo = computed(() => {
+    const noOfPeopleThatCanDo = new Map<Task, number>();
+    for (const task of tasks.value) {
+        noOfPeopleThatCanDo.set(task, people.value.filter((person) => person.canDo.includes(task)).length);
+    }
+
+    return noOfPeopleThatCanDo;
+});
+
 </script>
 
 <template>
@@ -185,8 +194,10 @@ const importConfig = () => {
                         </button>
                     </div>
                     <ul class="list-group">
-                        <li class="list-group-item d-flex" v-for="task, index in tasks" :key="index">
-                            {{ task }} <span class="ms-auto badge bg-danger" @click="tasks.splice(index, 1)">X</span>
+                        <li class="list-group-item d-flex align-items-center gap-3" v-for="task, index in tasks" :key="index">
+                            <span>{{ task }}</span>
+                            <span class="ms-auto">({{noOfPeopleThatCanDo.get(task)}})</span>
+                            <span class="badge bg-danger" @click="tasks.splice(index, 1)">X</span>
                         </li>
                     </ul>
                 </div>
