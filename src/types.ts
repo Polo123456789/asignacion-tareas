@@ -17,6 +17,5 @@ export type AssignmentDistributionReport = {
     individual: string;
     totalNumberOfTimesAssigned: number;
     totalNumberOfTimesAssignedToEachTask: Map<Task, number>;
-    averageWeeksBetweenAssignments: number;
 }
 
