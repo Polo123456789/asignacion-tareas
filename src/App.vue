@@ -14,6 +14,7 @@ const startDate = ref(new Date());
 const chronogram = useLocalStorage<Week[]>('chronogram', []);
 const weeksTilAssigmentRepeat = useLocalStorage<number>('weeksTilAssigmentRepeat', 3);
 const notesOnPrint = useLocalStorage<string>('notesOnPrint', 'En caso de no poder cumplir con su asignacion porfavor notificar al encargado para que se pueda reasignar');
+const title = useLocalStorage<string>('title', '');
 
 const inputTask = ref<Task>('');
 
@@ -222,6 +223,10 @@ const noOfPeopleThatCanDo = computed(() => {
                     <input type="number" class="form-control" id="weeksTilAssigmentRepeat" v-model="weeksTilAssigmentRepeat">
                 </div>
             </div>
+            <div class="input-group mb-3">
+                    <label class="input-group-text">Titulo</label>
+                    <input type="text" class="form-control" v-model="title">
+            </div>
             <div class="mb-3">
                 <h4>Notas &nbsp;<span class="badge bg-secondary fs-5">Opcional</span></h4>
                 <textarea class="form-control" v-model="notesOnPrint" rows="3"></textarea>
@@ -247,6 +252,7 @@ const noOfPeopleThatCanDo = computed(() => {
             </div>
             <hr/>
         </div>
+        <h1 v-if="title" class="mb-3 text-center">{{ title }}</h1>
         <table class="table table-striped table-sm" v-if="chronogram.length != 0">
             <thead>
                 <tr>
@@ -314,7 +320,7 @@ const noOfPeopleThatCanDo = computed(() => {
 }
 
 @media print {
-    * {
+    table {
         font-size: 12px;
     }
 
