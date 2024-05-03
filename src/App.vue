@@ -268,7 +268,7 @@ const importConfig = () => {
         </div>
         <!-- }}} -->
         <!-- {{{ Chronogram --->
-        <h1 v-if="title" class="mb-3 text-center">{{ title }}</h1>
+        <h2 v-if="title" class="mb-3 text-center">{{ title }}</h2>
         <table class="table table-striped table-sm" v-if="chronogram.length != 0">
             <thead>
                 <tr>
@@ -304,7 +304,7 @@ const importConfig = () => {
     </div>
     <!-- }}} -->
     <!-- {{{ Distribuition Analisis -->
-    <hr class="mt-3"/>
+    <hr class="mt-3 dont-print"/>
     <details class="dont-print container">
         <summary>
             Análisis de distribución
@@ -322,7 +322,7 @@ const importConfig = () => {
             </li>
         </ul>
     </details>
-    <hr/>
+	<hr class="mt-3 dont-print"/>
     <!-- }}} -->
     <!-- {{{ Footer -->
     <div class="dont-print">
@@ -359,7 +359,7 @@ const importConfig = () => {
 }
 
 @media print {
-    table {
+    table, p {
         font-size: 12px;
     }
 
