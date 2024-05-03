@@ -6,6 +6,7 @@ import {generateChronogram} from './generate-chronogram';
 import {Week, Individual, Task} from './types';
 
 import { useLocalStorage } from './composables/useLocalStorage';
+import { useAssignmentDistribution } from './composables/useAssingmentDistribution';
 
 const tasks = useLocalStorage<Task[]>('tasks', []);
 const people = useLocalStorage<Individual[]>('people', []);
@@ -15,6 +16,9 @@ const chronogram = useLocalStorage<Week[]>('chronogram', []);
 const weeksTilAssigmentRepeat = useLocalStorage<number>('weeksTilAssigmentRepeat', 3);
 const notesOnPrint = useLocalStorage<string>('notesOnPrint', 'En caso de no poder cumplir con su asignacion porfavor notificar al encargado para que se pueda reasignar');
 const title = useLocalStorage<string>('title', '');
+const assignmentDistribution = useAssignmentDistribution(people, tasks, chronogram);
+
+// {{{ Config UI
 
 const inputTask = ref<Task>('');
 
@@ -63,6 +67,10 @@ const setDate = () => {
     startDate.value = new Date(dateInput.value.value + 'T00:00:00-06:00');
 }
 
+// }}}
+
+// {{{ Chronogram UI
+
 const getWeekTextDescription = (weeksFromStart: number) => {
     const start = new Date(startDate.value);
     start.setDate(start.getDate() + weeksFromStart * 7);
@@ -106,7 +114,19 @@ const weekDown = (index: number) => {
     chronogram.value[index] = temp;
 }
 
-// Export as a file
+const noOfPeopleThatCanDo = computed(() => {
+    const noOfPeopleThatCanDo = new Map<Task, number>();
+    for (const task of tasks.value) {
+        noOfPeopleThatCanDo.set(task, people.value.filter((person) => person.canDo.includes(task)).length);
+    }
+
+    return noOfPeopleThatCanDo;
+});
+
+// }}}
+
+// {{{ Config Import/Export
+
 const exportConfig = () => {
     const data = {
         tasks: tasks.value,
@@ -147,18 +167,12 @@ const importConfig = () => {
     input.click();
 }
 
-const noOfPeopleThatCanDo = computed(() => {
-    const noOfPeopleThatCanDo = new Map<Task, number>();
-    for (const task of tasks.value) {
-        noOfPeopleThatCanDo.set(task, people.value.filter((person) => person.canDo.includes(task)).length);
-    }
-
-    return noOfPeopleThatCanDo;
-});
+// }}}
 
 </script>
 
 <template>
+    <!-- {{{ Configuracion -->
     <div class="container">
         <div class="dont-print mt-3 mb-3">
             <h2>Generador de cronograma</h2>
@@ -252,6 +266,8 @@ const noOfPeopleThatCanDo = computed(() => {
             </div>
             <hr/>
         </div>
+        <!-- }}} -->
+        <!-- {{{ Chronogram --->
         <h1 v-if="title" class="mb-3 text-center">{{ title }}</h1>
         <table class="table table-striped table-sm" v-if="chronogram.length != 0">
             <thead>
@@ -286,31 +302,54 @@ const noOfPeopleThatCanDo = computed(() => {
             <pre>{{ notesOnPrint }}</pre>
         </p>
     </div>
+    <!-- }}} -->
+    <!-- {{{ Distribuition Analisis -->
+    <hr class="mt-3"/>
+    <details class="dont-print container">
+        <summary>
+            Análisis de distribución
+        </summary>
+        <ul class="list-group">
+            <li class="list-group-item" v-for="distribution, index in assignmentDistribution" :key="index">
+                <span>
+                    {{distribution.individual}} fue asignado {{distribution.totalNumberOfTimesAssigned}} veces
+                </span>
+                <ul>
+                    <li v-for="[task, times], index in distribution.totalNumberOfTimesAssignedToEachTask" :key="index">
+                        <b>{{task}}:</b> {{times}}
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </details>
+    <hr/>
+    <!-- }}} -->
+    <!-- {{{ Footer -->
     <div class="dont-print">
-            <footer class="text-center mx-auto mb-3" style="max-width: 40rem;">
-                <details>
-                    <summary>
-                       Copyright (C) 2023 Pablo Sanchez
-                    </summary>
-                    <p>
-                        Este programa es software libre: puede redistribuirlo y/o modificarlo
-                        bajo los términos de la Licencia Pública General de GNU publicada por
-                        la Free Software Foundation, ya sea la versión 3 de la Licencia o
-                        (a su elección) cualquier versión posterior.
-                    </p>
-                    <p>
-                        Este programa se distribuye con la esperanza de que sea útil,
-                        pero SIN NINGUNA GARANTÍA; ni siquiera la garantía implícita de
-                        COMERCIALIZACIÓN o IDONEIDAD PARA UN FIN PARTICULAR. Consulte la
-                        Licencia Pública General de GNU para más detalles.
-                    </p>
-                    <a href="/generador-programas-av/LICENCE.txt">Ver Licencia</a>
-                    <br/>
-                    <a href="https://github.com/Polo123456789/generador-programas-av">Github</a>
-                </details>
-            </footer>
-        </div>
-    
+        <footer class="text-center mx-auto mb-3" style="max-width: 40rem;">
+            <details>
+                <summary>
+                   Copyright (C) 2023 Pablo Sanchez
+                </summary>
+                <p>
+                    Este programa es software libre: puede redistribuirlo y/o modificarlo
+                    bajo los términos de la Licencia Pública General de GNU publicada por
+                    la Free Software Foundation, ya sea la versión 3 de la Licencia o
+                    (a su elección) cualquier versión posterior.
+                </p>
+                <p>
+                    Este programa se distribuye con la esperanza de que sea útil,
+                    pero SIN NINGUNA GARANTÍA; ni siquiera la garantía implícita de
+                    COMERCIALIZACIÓN o IDONEIDAD PARA UN FIN PARTICULAR. Consulte la
+                    Licencia Pública General de GNU para más detalles.
+                </p>
+                <a href="/generador-programas-av/LICENCE.txt">Ver Licencia</a>
+                <br/>
+                <a href="https://github.com/Polo123456789/generador-programas-av">Github</a>
+            </details>
+        </footer>
+    </div>
+    <!-- }}} -->
 </template>
 
 <style scoped>

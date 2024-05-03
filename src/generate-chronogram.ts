@@ -1,7 +1,6 @@
 import { Task, Individual, Week } from './types'
 import { shuffleArray } from './utils'
 
-
 const generateAllPossibleWeeks = (people: Individual[], tasks: Task[]) => {
     const weeks: Week[] = [];
     const peopleCanDo: { [name: string]: Task[] } = {};
@@ -63,7 +62,6 @@ export function generateChronogram(originalPeople: Individual[],
         while (loopCount++ < possibleWeeks.length) {
             const week = possibleWeeksIterator.next();
             const lastWeeks = weeks.slice(-weeksTilAssigmentRepeat);
-    
             const isGoodWeek = lastWeeks.every(lastWeek => {
                 return !lastWeek.some((task, index) => {
                     return task.assignedTo === week[index].assignedTo;
@@ -83,4 +81,4 @@ export function generateChronogram(originalPeople: Individual[],
     }
 
     return weeks;
-}                             
+}
