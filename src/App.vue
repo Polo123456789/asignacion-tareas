@@ -12,6 +12,7 @@ const tasks = useLocalStorage<Task[]>('tasks', []);
 const people = useLocalStorage<Individual[]>('people', []);
 const weeks = useLocalStorage<number>('weeks', 8);
 const startDate = ref(new Date());
+const forAllWeek = useLocalStorage<boolean>('forAllWeek', true);
 const chronogram = useLocalStorage<Week[]>('chronogram', []);
 const weeksTilAssigmentRepeat = useLocalStorage<number>('weeksTilAssigmentRepeat', 3);
 const notesOnPrint = useLocalStorage<string>('notesOnPrint', 'En caso de no poder cumplir con su asignacion porfavor notificar al encargado para que se pueda reasignar');
@@ -72,11 +73,20 @@ const setDate = () => {
 // {{{ Chronogram UI
 
 const getWeekTextDescription = (weeksFromStart: number) => {
-    const start = new Date(startDate.value);
-    start.setDate(start.getDate() + weeksFromStart * 7);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 6);
-    return `Semana del ${start.getDate()}/${start.getMonth() + 1} al ${end.getDate()}/${end.getMonth() + 1}`;
+    if (forAllWeek.value) {
+        const start = new Date(startDate.value);
+        start.setDate(start.getDate() + weeksFromStart * 7);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        return `Semana del ${start.getDate()}/${start.getMonth() + 1} al ${end.getDate()}/${end.getMonth() + 1}`;
+    } else {
+        const start = new Date(startDate.value);
+        start.setDate(start.getDate() + weeksFromStart * 7);
+        return start.toLocaleDateString(
+            'es-GT',
+            {day: 'numeric', month: 'long'}
+        );
+    }
 }
 
 const runChronogramGenerator  = () => {
@@ -231,10 +241,22 @@ const importConfig = () => {
                     </div>
                 </div>
             </div>
-            <div class="mb-3">
-                <div class="input-group mb-3" style="max-width: 400px;" >
-                    <label for="weeksTilAssigmentRepeat" class="input-group-text">Semanas hasta repetir asignación</label>
-                    <input type="number" class="form-control" id="weeksTilAssigmentRepeat" v-model="weeksTilAssigmentRepeat">
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="input-group mb-3" style="max-width: 400px;" >
+                        <label for="weeksTilAssigmentRepeat" class="input-group-text">Semanas hasta repetir asignación</label>
+                        <input type="number" class="form-control" id="weeksTilAssigmentRepeat" v-model="weeksTilAssigmentRepeat">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="forAllWeek" v-model="forAllWeek">
+                            <label class="form-check">
+                                Mostrar semanas como rango de fechas
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="input-group mb-3">
